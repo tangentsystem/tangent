@@ -1,0 +1,52 @@
+{
+  "name": "tangent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "tangent-node": "bin/node.js",
+    "tangent-client": "bin/client.js",
+    "tangent-mcp": "bin/mcp.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "node": "node bin/node.js",
+    "client": "node bin/client.js",
+    "mcp": "node bin/mcp.js",
+    "test": "node --test \"src/**/*.test.js\" \"test/**/*.test.js\"",
+    "test:e2e": "node --test \"test/e2e/*.test.js\"",
+    "test:selftest": "node --test \"src/selftest/*.test.js\""
+  },
+  "dependencies": {
+    "@cloudflare/blindrsa-ts": "^0.4.4",
+    "@coral-xyz/anchor": "^0.32.1",
+    "@heliuslabs/spr": "^0.9.0-alpha",
+    "@meteora-ag/cp-amm-sdk": "^1.5.1",
+    "@meteora-ag/dynamic-bonding-curve-sdk": "^2.0.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@noble/ciphers": "^2.4.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@pump-fun/pump-sdk": "^4.3.1",
+    "@pump-fun/pump-swap-sdk": "^2.2.0",
+    "@raydium-io/raydium-sdk-v2": "^0.2.87-alpha",
+    "@solana/kit": "^8.6.0",
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "^1.99.0",
+    "@streamflow/stream": "^13.5.0",
+    "bn.js": "^5.2.5",
+    "bs58": "^6.0.0",
+    "express": "^5.3.0",
+    "mongodb": "^7.9.1",
+    "playwright-core": "^1.65.1",
+    "ws": "^8.23.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "litesvm": "^1.6.2",
+    "socks": "^2.8.11"
+  }
+}

@@ -1,0 +1,60 @@
+{
+ "mint": "CM3o3JYwVQ3gPAMjGnGWBkkPZjbd652MGhfMkbaRpump",
+ "capturedAt": "2026-11-25T11:48:27.188Z",
+ "slot": 473735277,
+ "read": {
+  "platform": "pumpfun",
+  "stage": "curve",
+  "migrating": false,
+  "pool": "AbwsPbZsEM7km968oD7BNc6GR92c43PiiMdjdjdUCfbU",
+  "symbol": "pokex",
+  "name": "pokex.fun",
+  "priceSol": 7.417511212212297e-8,
+  "supply": {
+   "total": "999998979.796",
+   "circulating": "414232654.75763",
+   "totalRaw": "999998979796000",
+   "circulatingRaw": "414232654757630",
+   "decimals": 6
+  },
+  "reason": null
+ },
+ "calls": {
+  "getAccountInfo [{\"$pk\":\"CM3o3JYwVQ3gPAMjGnGWBkkPZjbd652MGhfMkbaRpump\"}]": {
+   "data": {
+    "$b64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIGz3Z36NAwAGAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARIAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKiTVNE4mpgQ0wO1w1pQlX2BtOqS7BBQkFltc8mDeoXvEwCUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqJNU0TiamBDTA7XDWlCVfYG06pLsEFCQWW1zyYN6he8JAAAAcG9rZXguZnVuBQAAAHBva2V4NgAAAGh0dHBzOi8vbWV0YWRhdGEuajd0cmFja2VyLmlvL21ldGFkYXRhL2lZek9iZjlJWGUuanNvbgAAAAA="
+   },
+   "executable": false,
+   "lamports": 3577440,
+   "owner": {
+    "$pk": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+   },
+   "rentEpoch": 18446744073709552000,
+   "space": 386
+  },
+  "getAccountInfo [{\"$pk\":\"AbwsPbZsEM7km968oD7BNc6GR92c43PiiMdjdjdUCfbU\"}]": {
+   "data": {
+    "$b64": "F7f4N2DYrGAiPcv8JFcCAOZ5hmALAAAAIqW4sJNYAQDmzWJkBAAAAACAxqR+jQMAADqP8BoEnwAy0gEf41tDdQ4SJ+MnC/Fxe7fAVb3ADT1mAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADn6hcAAAAAAG3LFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+   },
+   "executable": false,
+   "lamports": 18869079858,
+   "owner": {
+    "$pk": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+   },
+   "rentEpoch": 18446744073709552000,
+   "space": 166
+  },
+  "getAccountInfo [{\"$pk\":\"XyogjEA4fQWGbwHTKDV7UjH1i6rnpNdoRqnJsXQZ8GR\"}]": {
+   "data": {
+    "$b64": "qJNU0TiamBDTA7XDWlCVfYG06pLsEFCQWW1zyYN6he+OrPhdtAffqwOCwtMf7EolWUVnj8OsCzKCYpe9pN7gjyKtuVnAFAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgcAAAA="
+   },
+   "executable": false,
+   "lamports": 2074080,
+   "owner": {
+    "$pk": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+   },
+   "rentEpoch": 18446744073709552000,
+   "space": 170
+  }
+ }
+}
