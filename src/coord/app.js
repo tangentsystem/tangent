@@ -99,7 +99,7 @@ async function creditSplit(pay, args) {
 
 export function createApp({
   store, pay = null, token = null, config, connection = null, log = null, keys,
-  offgrid = null, stake = null, now = Date.now, provisioner = null, selftest = null,
+  offgrid = null, stake = null, now = Date.now, provisioner = null, selftest = null, onion = null,
 } = {}) {
   if (!store) throw new Error('createApp: store is required');
   if (!config) throw new Error('createApp: config is required');
@@ -157,6 +157,8 @@ export function createApp({
   const ready = registry.init().catch((err) => logger.error('registry.init_failed', { reason: String(err && err.message).slice(0, 200) }));
   app.use(async (_req, _res, next) => { await ready; next(); });
 
+  const siteOnion = () => { try { return (typeof onion === 'function' && onion()) || null; } catch { return null; } };
+
   app.get('/api/health', (req, res) => {
     parse(emptyQuery, req.query);
     res.json({
@@ -171,6 +173,7 @@ export function createApp({
         coordinator: identity.id,
         tipAccount,
         links: { coordinator: solscan(identity.id, config), tipAccount: solscan(tipAccount, config) },
+        ...(siteOnion() ? { onion: `http://${siteOnion()}` } : {}),
       },
       selftest: selftest ? { ...safeSummary(selftest), moneyActions: moneyOpen() ? 'open' : 'closed' } : { state: 'off', reason: 'runs when MONGO_URI and HELIUS_API_KEY are set' },
     });
@@ -350,7 +353,7 @@ export function createApp({
   app.use('/api/pay', payGate, pay && pay.router ? pay.router : notConfigured);
   app.use('/api/token', token && token.router ? token.router : notConfigured);
 
-  app.use(createWeb({ token }));
+  app.use(createWeb({ token, onion: siteOnion }));
 
   app.use((_req, res) => res.status(404).json({ error: 'NOT_FOUND', message: 'no such route' }));
 

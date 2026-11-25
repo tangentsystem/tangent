@@ -192,13 +192,29 @@ ${pageJson(data)}
 `;
 }
 
-export function createWeb({ token = null } = {}) {
+export function createWeb({ token = null, onion = null } = {}) {
   const router = express.Router();
   const file = (name, type) => (_req, res) => { res.type(type); res.sendFile(path.join(WEB_DIR, name)); };
   router.get('/tangent.js', file('tangent.js', 'text/javascript'));
   router.get('/tangent.css', file('tangent.css', 'text/css'));
+  // The one line node installer: curl -fsSL <site>/install.sh | sudo bash
+  router.get('/install.sh', (_req, res) => { res.type('text/plain; charset=utf-8'); res.sendFile(path.join(WEB_DIR, '..', 'install.sh')); });
   router.use('/vendor', express.static(path.join(WEB_DIR, 'vendor'), { index: false, etag: false, lastModified: false, cacheControl: false }));
-  const html = (fn) => async (_req, res) => { res.type('html').send(fn(await tokenBlock(token))); };
+  // The site's .onion address, once Tor carries it: a menu link on every page, and the
+  // Onion-Location header so Tor Browser offers the onion address by itself.
+  const onionOf = () => { try { const a = typeof onion === 'function' ? onion() : null; return /^[a-z2-7]{56}\.onion$/.test(a || '') ? a : null; } catch { return null; } };
+  const withOnion = (page, addr) => page
+    .replace(`<a class="plain" href="${REPO_URL}" rel="noopener">GitHub</a>`, `<a class="plain" href="http://${addr}" rel="noopener">Onion</a><a class="plain" href="${REPO_URL}" rel="noopener">GitHub</a>`)
+    .replace(`<a href="${REPO_URL}" rel="noopener">GitHub</a>`, `<a href="http://${addr}" rel="noopener">Onion</a><a href="${REPO_URL}" rel="noopener">GitHub</a>`);
+  const html = (fn) => async (req, res) => {
+    let page = fn(await tokenBlock(token));
+    const addr = onionOf();
+    if (addr) {
+      page = withOnion(page, addr);
+      if (!String(req.hostname || '').endsWith('.onion')) res.set('Onion-Location', `http://${addr}${req.path}`);
+    }
+    res.type('html').send(page);
+  };
   const routes = [
     ...PAGES.map((p) => [p.path, (tok) => renderJourney(p, tok)]),
     [DOCS_INDEX.path, (tok) => renderDocsIndex(tok)],

@@ -50,7 +50,7 @@ export async function startService({ env = process.env, sink, listen = true, imp
       selftest = { clear: () => false, report: () => ({ state: 'setup_failed', clear: false, reason: 'the self test could not start; see the logs' }), summary: () => ({ state: 'setup_failed', clear: false }), start: async () => {}, stop: async () => {} };
     }
     parts.selftest = selftest;
-    const app = createApp({ store, pay: modules.pay, token: modules.token, offgrid: modules.offgrid, config, connection, log, keys, provisioner, selftest });
+    const app = createApp({ store, pay: modules.pay, token: modules.token, offgrid: modules.offgrid, config, connection, log, keys, provisioner, selftest, onion: () => (parts.siteOnion ? parts.siteOnion.address() : null) });
     parts.app = app;
     if (listen) {
       const server = http.createServer(app);
@@ -66,6 +66,13 @@ export async function startService({ env = process.env, sink, listen = true, imp
     log.line(`${PRODUCT_NAME} coordinator ${config.version}  port ${port}  storage ${store.kind}`);
     log.info('service.listening', { port, storage: store.kind, transactions: store.capabilities.transactions, modules: modules.status, flags: config.flags });
     provisioner.start();
+    // The site's own .onion address: only on a real database (the key must be kept) and a real port.
+    if (config.siteOnion && port && store.kind === 'mongo') {
+      import('./site-onion.js')
+        .then(({ startSiteOnion }) => startSiteOnion({ store, port, log, torBin: config.torBin }))
+        .then((h) => { parts.siteOnion = h; })
+        .catch((err) => log.warn('site_onion.failed', { reason: String(err && err.message).slice(0, 200) }));
+    }
     if (selftest) selftest.start().catch((err) => log.warn('selftest.failed', { reason: String(err && err.message).slice(0, 200) }));
     await app.locals.sweep().catch(() => {});
     parts.sweeper = setInterval(() => { app.locals.sweep().catch((err) => log.warn('nodes.sweep_failed', { reason: String(err && err.message).slice(0, 120) })); }, config.sweepIntervalMs);
@@ -108,6 +115,7 @@ export async function startService({ env = process.env, sink, listen = true, imp
     stopping = (async () => {
       if (parts.selftest) await parts.selftest.stop().catch(() => {});
       if (parts.tipSweeper) await parts.tipSweeper.stop().catch(() => {});
+      if (parts.siteOnion) await parts.siteOnion.stop().catch(() => {});
       if (parts.sweeper) clearInterval(parts.sweeper);
       if (parts.payTicker) clearInterval(parts.payTicker);
       if (parts.server) {

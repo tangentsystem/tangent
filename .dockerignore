@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.git
+.env
+.env.*
+!.env.example
+_to_delete
+tools
+test
+docs
+*.log
+data
+backups

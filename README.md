@@ -16,6 +16,14 @@ Site: [tangentsystems.net](https://tangentsystems.net) · Docs: [tangentsystems.
 
 You need a computer that stays on, Node.js 22 or newer, and an address other machines can reach with ports 9101, 9102 and 9103 open. Docker is needed only if you rent out sealed computers.
 
+One line on an Ubuntu or Debian machine installs everything, starts the node and keeps it running:
+
+```
+curl -fsSL https://tangentsystems.net/install.sh | sudo bash
+```
+
+Or by hand:
+
 ```
 git clone https://github.com/tangentsystem/tangent.git
 cd tangent

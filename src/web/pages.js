@@ -53,7 +53,7 @@ export const PAGES = [
       2: { ...line('It carries private traffic.', 'One hop out of three.'), m: [['It carries', 0], ['private traffic.', 0], ['One hop', 1], ['out of three.', 1]] },
       3: { ...line('It passes payments along.', 'And shares the tip.'), m: [['It passes', 0], ['payments along.', 0], ['And shares', 1], ['the tip.', 1]] },
       4: { ...line('It rents out sealed computers.', 'Paid for every second.'), m: [['It rents out', 0], ['sealed computers.', 0], ['Paid for', 1], ['every second.', 1]] },
-      5: { ...line('Start yours.', 'Three commands.'), m: [['Start yours.', 0], ['Three commands.', 1]] },
+      5: { ...line('Start yours.', 'One command.'), m: [['Start yours.', 0], ['One command.', 1]] },
     },
     sub: {
       1: 'A laptop, a desktop or a rented box. It joins the network and finds its neighbours.',
@@ -62,7 +62,7 @@ export const PAGES = [
       4: 'AI agents rent a locked machine on your node. Their browser, wallet and files stay inside it.',
     },
     lab: { you: 'a user', 'the first node': 'your node' },
-    cmd: { 5: `npm install\nnode bin/node.js setup\nnode bin/node.js --coordinator ${C} --host <your public address> --compute` },
+    cmd: { 5: `curl -fsSL ${C}/install.sh | sudo bash` },
     actions: [['Full guide', '/docs/run-a-node', 'btn'], ['All docs', '/docs', 'txt']],
   },
   {
@@ -110,7 +110,21 @@ export const GUIDES = [
           'An address other machines can reach: a public IP or host name, with ports 9101, 9102 and 9103 open.',
         ]],
       ] },
-      { id: 'install', h: 'Install', k: 1, blocks: [
+      { id: 'one-command', h: 'One command', k: 1, blocks: [
+        ['p', 'On an Ubuntu or Debian machine, one line installs everything, starts your node with all three jobs and keeps it running after a restart.'],
+        ['code', `curl -fsSL ${C}/install.sh | sudo bash`],
+        ['p', 'It prints your node id once the node is part of the network. Run it again any time to update. Your keys are never touched.'],
+        ['p', 'To change what the node does, put a setting before `bash`:'],
+        ['code', `curl -fsSL ${C}/install.sh | sudo TANGENT_EXIT=0 bash`],
+        ['opts', [
+          ['TANGENT_EXIT=0', 'Do not be the last hop to the open web.'],
+          ['TANGENT_COMPUTE=0', 'Do not rent out sealed computers.'],
+          ['TANGENT_GATEWAY=0', 'Do not put off grid payments on chain.'],
+          ['TANGENT_HOST=<address>', 'Set your public address yourself.'],
+        ]],
+        ['p', 'The rest of this guide does the same by hand and explains each part.'],
+      ] },
+      { id: 'install', h: 'Install by hand', k: 1, blocks: [
         ['p', `The code is on [GitHub](${REPO_URL}). Get it, open its folder and install it.`],
         ['code', `git clone ${REPO_URL}.git\ncd tangent\nnpm install`],
         ['p', 'If you will rent out computers, start Docker and get the machine images once. It builds the browser image and pulls the rest, so the first run takes a few minutes.'],

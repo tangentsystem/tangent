@@ -166,6 +166,9 @@ export function loadConfig(env = process.env) {
     // Development only: run the pay module on the simulated Rings adapter (no real money,
     // nothing on chain). Used by the end to end test. Ignored when real pay is configured.
     payDevSim: bool(env, 'PAY_DEV_SIM', false),
+    // The site's own .onion address (src/coord/site-onion.js). On whenever the service runs on MongoDB.
+    siteOnion: bool(env, 'SITE_ONION', true),
+    torBin: env.TOR_BIN || 'tor',
     // Development only, with PAY_DEV_SIM: also open the deposit and withdraw routes on the simulated
     // adapter (they answer 503 there otherwise), so the end to end test can withdraw through the CLI.
     payDevSimRoutes: bool(env, 'PAY_DEV_SIM_ROUTES', false),

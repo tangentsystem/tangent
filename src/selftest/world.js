@@ -367,10 +367,23 @@ export function fundedGroups({ config, store, keys, connection, wallet, guard, d
       let created = null;
       if (!info) {
         const rent = await connection.getMinimumBalanceForRentExemption(NONCE_ACCOUNT_LENGTH);
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-        const bytes = buildCreateNonceAccountTx({ payer, nonceAccount: nonceKp, authority: payer.publicKey, lamports: rent, recentBlockhash: blockhash });
-        guard.assertTx(bytes, 'nonce account creation');
-        created = await connection.sendRawTransaction(bytes, { preflightCommitment: 'confirmed' });
+        // A finalized blockhash is known to every RPC machine behind the endpoint. A newer one can
+        // be refused with "Blockhash not found" by a machine that has not caught up yet, so that
+        // answer is retried with a fresh blockhash instead of failing the check.
+        let lastValidBlockHeight = 0;
+        for (let attempt = 0; ; attempt++) {
+          const bh = await connection.getLatestBlockhash('finalized');
+          lastValidBlockHeight = bh.lastValidBlockHeight;
+          const bytes = buildCreateNonceAccountTx({ payer, nonceAccount: nonceKp, authority: payer.publicKey, lamports: rent, recentBlockhash: bh.blockhash });
+          guard.assertTx(bytes, 'nonce account creation');
+          try {
+            created = await connection.sendRawTransaction(bytes, { preflightCommitment: 'confirmed' });
+            break;
+          } catch (err) {
+            if (attempt >= 3 || !/Blockhash not found/i.test(String(err && err.message))) throw err;
+            await new Promise((r) => setTimeout(r, deps.blockhashRetryMs ?? 2000));
+          }
+        }
         await confirmSignature(connection, created, { lastValidBlockHeight });
         guard.record({ kind: 'nonce.create', from: wallet.address, to: noncePub.toBase58(), lamports: String(rent), signature: created });
         info = await deps.waitFor(() => connection.getAccountInfo(noncePub, 'confirmed'), { timeoutMs: 60_000, every: 1000, what: 'the nonce account' });
