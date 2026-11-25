@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { startApp } from '../coord/testkit.js';
 import { ROUTES } from './index.js';
-import { PAGES, GUIDES, DOCS_INDEX, shownCode, SITE_URL, X_URL } from './pages.js';
+import { PAGES, GUIDES, DOCS_INDEX, shownCode, SITE_URL, X_URL, REPO_URL } from './pages.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CA = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
@@ -26,6 +26,7 @@ test('every page answers 200 html with no-store, canonical url and the X link', 
       assert.equal(r.headers.get('cache-control'), 'no-store', p);
       assert.ok(r.text.includes(`<link rel="canonical" href="${SITE_URL}${p === '/' ? '' : p}">`), p);
       assert.ok(r.text.includes(X_URL), p);
+      assert.ok(r.text.includes(REPO_URL), p);
       assert.ok(r.text.includes('<canvas id="gl">') && r.text.includes('/tangent.js'), `${p} carries the scene`);
       assert.ok(!/https?:\/\/(fonts\.|cdn|unpkg|jsdelivr)/.test(r.text), `${p} loads nothing from outside`);
     }

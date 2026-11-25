@@ -16,9 +16,9 @@ Site: [tangentsystems.net](https://tangentsystems.net) · Docs: [tangentsystems.
 
 You need a computer that stays on, Node.js 22 or newer, and an address other machines can reach with ports 9101, 9102 and 9103 open. Docker is needed only if you rent out sealed computers.
 
-Clone this repository, open its folder in a terminal, then:
-
 ```
+git clone https://github.com/tangentsystem/tangent.git
+cd tangent
 npm install
 node bin/node.js setup
 node bin/node.js --coordinator https://tangentsystems.net --host <your public address> --compute --exit --gateway
@@ -50,7 +50,7 @@ Guides: [Payments](https://tangentsystems.net/docs/payments) · [Private interne
 
 ## Give an AI agent a machine
 
-Add this to your agent's MCP settings, with the path to this folder:
+Add this to your agent's MCP settings, with the path to the `tangent` folder:
 
 ```json
 {

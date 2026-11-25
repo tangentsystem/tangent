@@ -1,0 +1,13 @@
+{
+  "name": "Tangent Systems",
+  "symbol": "TANGENT",
+  "description": "The private network layer for people and AI agents.",
+  "createdOn": "https://tangentsystems.net",
+  "image": "https://raw.githubusercontent.com/tangentsystem/tangent/main/token/logo.png",
+  "twitter": "https://x.com/tangentsys",
+  "website": "https://tangentsystems.net",
+  "extensions": {
+    "twitter": "https://x.com/tangentsys",
+    "website": "https://tangentsystems.net"
+  }
+}

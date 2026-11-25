@@ -11,7 +11,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PAGES, GUIDES, DOCS_INDEX, X_URL, SITE_URL } from './pages.js';
+import { PAGES, GUIDES, DOCS_INDEX, X_URL, REPO_URL, SITE_URL } from './pages.js';
 
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'web');
 
@@ -78,8 +78,8 @@ function nav(current) {
     .map(([label, href]) => `<a class="${href.startsWith('/docs/') ? 'sub' : ''}${current === href ? ' cur' : ''}" href="${href}">${esc(label)}</a>`).join('');
   return `<nav>
   <a class="brand" href="/">${ICON}Tangent Systems</a>
-  <div class="links">${links}<a class="plain" href="${X_URL}" rel="noopener">X</a><a class="run" href="/docs/run-a-node">Run a node</a></div>
-  <details class="menu"><summary><span class="o">Menu</span><span class="c">Close</span></summary><div class="sheet">${sheet}<a href="${X_URL}" rel="noopener">X</a></div></details>
+  <div class="links">${links}<a class="plain" href="${REPO_URL}" rel="noopener">GitHub</a><a class="plain" href="${X_URL}" rel="noopener">X</a><a class="run" href="/docs/run-a-node">Run a node</a></div>
+  <details class="menu"><summary><span class="o">Menu</span><span class="c">Close</span></summary><div class="sheet">${sheet}<a href="${REPO_URL}" rel="noopener">GitHub</a><a href="${X_URL}" rel="noopener">X</a></div></details>
 </nav>`;
 }
 

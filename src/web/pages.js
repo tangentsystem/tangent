@@ -12,6 +12,7 @@
 // Block kinds: ['p', text] ['code', text] ['list', [text...]] ['opts', [[term, text]...]] ['h3', text, k]
 
 export const X_URL = 'https://x.com/tangentsys';
+export const REPO_URL = 'https://github.com/tangentsystem/tangent';
 export const SITE_URL = 'https://tangentsystems.net';
 const C = SITE_URL; // the network address the tools talk to (same app as this site)
 
@@ -110,8 +111,8 @@ export const GUIDES = [
         ]],
       ] },
       { id: 'install', h: 'Install', k: 1, blocks: [
-        ['p', `Put the Tangent Systems code on the machine, open its folder in a terminal and install it.`],
-        ['code', 'npm install'],
+        ['p', `The code is on [GitHub](${REPO_URL}). Get it, open its folder and install it.`],
+        ['code', `git clone ${REPO_URL}.git\ncd tangent\nnpm install`],
         ['p', 'If you will rent out computers, start Docker and get the machine images once. It builds the browser image and pulls the rest, so the first run takes a few minutes.'],
         ['code', 'node bin/node.js setup'],
       ] },
@@ -399,7 +400,7 @@ export const GUIDES = [
     k: 4.5,
     sections: [
       { id: 'basics', h: 'Basics', k: 4.55, blocks: [
-        ['p', `Run every command from ${BASE}, after \`npm install\`. Node.js 22 or newer.`],
+        ['p', `Run every command from ${BASE}, after \`npm install\`. Node.js 22 or newer. The code is on [GitHub](${REPO_URL}).`],
         ['p', '`--coordinator` is where the network lives. Use `' + C + '`. The client and agent tools also read it from `TANGENT_COORDINATOR`.'],
         ['p', 'Add `--help` to any of the three to see its options.'],
       ] },
