@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=360">
+<title>Tangent</title>
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<main id="app" data-state="start">
+  <header class="top">
+    <span class="brand"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="16" r="7"/><path d="M3 9h21"/></svg>Tangent</span>
+    <button class="link" id="settings" type="button">Settings</button>
+  </header>
+
+  <figure class="path" aria-hidden="true">
+    <svg id="route" viewBox="0 0 312 100" width="312" height="100"></svg>
+  </figure>
+
+  <section class="copy">
+    <h1 id="title"></h1>
+    <p id="sub"></p>
+  </section>
+
+  <dl class="stats" id="stats">
+    <div id="stat-data"><dt>Data used</dt><dd id="data"></dd></div>
+    <div id="stat-time"><dt>On for</dt><dd id="time"></dd></div>
+  </dl>
+
+  <div class="actions">
+    <button class="main" id="primary" type="button"></button>
+    <a class="main" id="primary-link" href="https://tangentsystems.net/app" target="_blank" rel="noopener">Get the app</a>
+    <button class="link quiet" id="secondary" type="button"></button>
+  </div>
+
+  <p class="tech" id="tech"></p>
+</main>
+<script type="module" src="popup.js"></script>
+</body>
+</html>

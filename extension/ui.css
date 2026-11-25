@@ -1,0 +1,15 @@
+@font-face{font-family:Inter;src:url(fonts/inter.woff2) format('woff2');font-weight:100 900;font-display:block}
+:root{--bg:#060606;--fg:#f3f2ee;--txt:rgba(243,242,238,.86);--mut:rgba(243,242,238,.6);--faint:rgba(243,242,238,.38);--line:rgba(243,242,238,.16);--acc:#3d5cff;--acc-hi:#5572ff;--bad:#ff8a7a;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.main{display:flex;align-items:center;justify-content:center;width:100%;height:46px;border-radius:9px;background:var(--acc);color:#fff;font-size:15px;font-weight:560;letter-spacing:-.005em;text-decoration:none;transition:background .25s,color .25s,opacity .25s}
+.main:hover{background:var(--acc-hi)}
+.main.light{background:var(--fg);color:#0b0b0b}
+.main.light:hover{background:#fff}
+.main:disabled{cursor:default;opacity:.5}
+.link{color:var(--mut);font-size:13.5px;padding:4px 0;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.link:hover{color:var(--fg);border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15px;letter-spacing:-.01em}
+.brand svg{width:20px;height:20px}

@@ -18,7 +18,9 @@
     "mcp": "node bin/mcp.js",
     "test": "node --test \"src/**/*.test.js\" \"test/**/*.test.js\"",
     "test:e2e": "node --test \"test/e2e/*.test.js\"",
-    "test:selftest": "node --test \"src/selftest/*.test.js\""
+    "test:selftest": "node --test \"src/selftest/*.test.js\"",
+    "test:app": "npm --prefix app test",
+    "test:extension": "npm --prefix extension test"
   },
   "dependencies": {
     "@cloudflare/blindrsa-ts": "^0.4.4",

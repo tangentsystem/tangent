@@ -1,0 +1,60 @@
+html,body{width:360px;height:500px}
+body{overflow:hidden}
+#app{display:flex;flex-direction:column;padding:20px 24px 22px;height:500px;opacity:0;transition:opacity .35s}
+#app.ready{opacity:1}
+.top{display:flex;align-items:center;justify-content:space-between;height:28px}
+
+/* the route drawing */
+.path{margin:42px -24px 0;display:flex;justify-content:center}
+#route{overflow:visible}
+#route text{font-family:Inter,system-ui,sans-serif;font-size:11.5px;fill:var(--mut)}
+#route text.id{font-family:var(--mono);font-size:10px;fill:var(--faint);opacity:0;transition:opacity .9s ease}
+#route .wire{stroke:var(--line);stroke-width:1;fill:none;transition:stroke .9s ease}
+#route .lit{stroke:var(--acc);stroke-width:1.25;fill:none;stroke-dasharray:270;stroke-dashoffset:270;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+#route .glow{stroke:#c9d2ff;stroke-width:1.25;fill:none;stroke-linecap:round;stroke-dasharray:22 460;stroke-dashoffset:22;opacity:0;transition:opacity .9s ease}
+#route .end{fill:var(--bg);stroke:var(--faint);stroke-width:1;transition:stroke .9s ease}
+#route .gap{stroke:var(--faint);stroke-width:1;opacity:0;transition:opacity .6s ease}
+#route .cube path{stroke:rgba(243,242,238,.24);stroke-width:1;stroke-linejoin:round;transition:fill .9s ease,stroke .9s ease}
+#route .cube .t{fill:#151515}#route .cube .l{fill:#0d0d0d}#route .cube .r{fill:#0a0a0a}
+
+/* on: the line lights up end to end, cubes take the accent, a soft light travels along */
+[data-state=on] #route .lit{stroke-dashoffset:0}
+[data-state=on] #route .end{stroke:var(--acc)}
+[data-state=on] #route .cube path{stroke:rgba(190,202,255,.55)}
+[data-state=on] #route .cube .t{fill:#5d78ff}
+[data-state=on] #route .cube .l{fill:#2f49d6}
+[data-state=on] #route .cube .r{fill:#1f33a3}
+[data-state=on] #route text.id{opacity:1}
+[data-state=on] #route .glow{opacity:.5;animation:travel 8s linear infinite}
+@keyframes travel{from{stroke-dashoffset:22}to{stroke-dashoffset:-268}}
+
+/* turning on: the line draws once and the cubes light in order, then hold */
+[data-state=turning] #route .lit{stroke-dashoffset:0;transition-duration:3.2s}
+[data-state=turning] #route .cube path{stroke:rgba(190,202,255,.45)}
+[data-state=turning] #route .cube .t{fill:#5d78ff}
+[data-state=turning] #route .cube .l{fill:#2f49d6}
+[data-state=turning] #route .cube .r{fill:#1f33a3}
+[data-state=turning] #route .cube:nth-of-type(1) path{transition-delay:.7s}
+[data-state=turning] #route .cube:nth-of-type(2) path{transition-delay:1.6s}
+[data-state=turning] #route .cube:nth-of-type(3) path{transition-delay:2.5s}
+
+/* paused: the path holds, the way out to the web is closed */
+[data-state=paused] #route .gap{opacity:1}
+[data-state=paused] #route .wire.out{stroke:transparent}
+
+.copy{margin-top:30px;text-align:center;padding:0 4px}
+h1{font-size:21px;line-height:1.25;font-weight:620;letter-spacing:-.022em;text-wrap:balance}
+#sub{margin-top:9px;font-size:14px;line-height:1.55;color:var(--mut);text-wrap:pretty}
+#sub:empty{display:none}
+
+.stats{display:flex;justify-content:center;gap:44px;margin-top:22px}
+.stats[hidden],.stats div[hidden]{display:none}
+.stats div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stats dt{font-size:12px;color:var(--mut)}
+.stats dd{font-size:15px;font-weight:560;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+.actions{margin-top:auto;padding-top:28px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.actions [hidden]{display:none}
+.quiet{min-height:24px}
+
+.tech{margin-top:16px;text-align:center;font:11px var(--mono);color:var(--faint);min-height:13px}

@@ -13,13 +13,16 @@
 #   TANGENT_COMPUTE=0        do not rent out sealed computers (no Docker needed)
 #   TANGENT_GATEWAY=0        do not put off grid payments on chain
 #   TANGENT_RPC_URL=<url>    Solana RPC for the gateway
+#   HELIUS_API_KEY=<key>     a Helius key, so the node registers its payout wallet with Privacy
+#                            Rings by itself and can be paid (kept in a file only root can read)
 set -euo pipefail
 
 REPO="${TANGENT_REPO:-https://github.com/tangentsystem/tangent.git}"
 DIR="${TANGENT_DIR:-/opt/tangent}"
 DATA="${TANGENT_DATA:-/var/lib/tangent/node}"
 COORD="${TANGENT_COORDINATOR:-https://tangentsystems.net}"
-RPC="${TANGENT_RPC_URL:-https://api.mainnet-beta.solana.com}"
+RPC="${TANGENT_RPC_URL:-}"
+HELIUS="${HELIUS_API_KEY:-}"
 HOST="${TANGENT_HOST:-}"
 WANT_EXIT="${TANGENT_EXIT:-1}"
 WANT_COMPUTE="${TANGENT_COMPUTE:-1}"
@@ -27,6 +30,7 @@ WANT_GATEWAY="${TANGENT_GATEWAY:-1}"
 EXTRA="${TANGENT_EXTRA_ARGS:-}"
 SERVICE="tangent-node"
 LOG="$(dirname "$DATA")/node.log"
+ENVFILE="$(dirname "$DATA")/node.env"
 
 say() { printf '\n== %s\n' "$*"; }
 note() { printf '   %s\n' "$*"; }
@@ -117,14 +121,30 @@ if have ufw && ufw status 2>/dev/null | grep -q '^Status: active'; then
   ufw allow 9101:9103/tcp >/dev/null 2>&1 && note "opened ports 9101 to 9103 in the firewall"
 fi
 
+mkdir -p "$DATA"
+chmod 700 "$DATA"
+
+# The Helius key, when one is given, is kept in a file only root can read and handed to the
+# node from there. A later run without the setting keeps the key that is already saved.
+if [ -n "$HELIUS" ]; then
+  printf '%s' "$HELIUS" | grep -Eq '^[A-Za-z0-9-]{20,80}$' || die "HELIUS_API_KEY does not look like a Helius key"
+  ( umask 077; printf 'HELIUS_API_KEY=%s\n' "$HELIUS" > "$ENVFILE" )
+  chmod 600 "$ENVFILE"
+  note "saved the Helius key for payouts"
+fi
+HAVE_KEY=0
+[ -s "$ENVFILE" ] && grep -q '^HELIUS_API_KEY=.' "$ENVFILE" && HAVE_KEY=1
+
 ARGS=(--coordinator "$COORD" --host "$HOST" --data "$DATA")
 [ "$WANT_EXIT" = "1" ] && ARGS+=(--exit)
-[ "$WANT_GATEWAY" = "1" ] && ARGS+=(--gateway --rpc-url "$RPC")
+if [ "$WANT_GATEWAY" = "1" ]; then
+  ARGS+=(--gateway)
+  # with a Helius key the node uses it for the gateway too; without one it uses the public RPC
+  if [ -n "$RPC" ]; then ARGS+=(--rpc-url "$RPC"); elif [ "$HAVE_KEY" != 1 ]; then ARGS+=(--rpc-url https://api.mainnet-beta.solana.com); fi
+fi
 [ "$COMPUTE" = 1 ] && ARGS+=(--compute)
 # shellcheck disable=SC2206
 [ -n "$EXTRA" ] && ARGS+=($EXTRA)
-mkdir -p "$DATA"
-chmod 700 "$DATA"
 NODE_BIN="$(command -v node)"
 
 say "Starting the node"
@@ -138,6 +158,7 @@ if [ "$SYSTEMD" = 1 ]; then
     echo '[Service]'
     echo "WorkingDirectory=$DIR"
     echo 'Environment=HOME=/root'
+    echo "EnvironmentFile=-$ENVFILE"
     printf 'ExecStart=%s bin/node.js' "$NODE_BIN"
     printf ' %q' "${ARGS[@]}"
     echo
@@ -156,6 +177,7 @@ else
   # No systemd here (a container, for example): run it in the background.
   if [ -f "$LOG.pid" ] && kill -0 "$(cat "$LOG.pid")" 2>/dev/null; then kill "$(cat "$LOG.pid")" 2>/dev/null || true; sleep 2; fi
   : > "$LOG"
+  if [ "$HAVE_KEY" = 1 ]; then set -a; . "$ENVFILE"; set +a; fi
   nohup "$NODE_BIN" bin/node.js "${ARGS[@]}" >> "$LOG" 2>&1 &
   echo $! > "$LOG.pid"
   read_log() { cat "$LOG" 2>/dev/null; }
@@ -194,8 +216,18 @@ else
   printf '  logs       tail -f %s\n' "$LOG"
   printf '  stop       kill %s\n' "$(cat "$LOG.pid")"
 fi
-PAYOUT="$(printf '%s\n' "$OUT" | grep 'payout.fund_this_wallet' | tail -1 || true)"
-[ -n "$PAYOUT" ] && printf '\n  payouts    %s\n' "$PAYOUT"
+PAY_ADDR="$(printf '%s\n' "$OUT" | grep -E 'payout\.(fund_this_wallet|not_registered|ready|key_created)' | grep -o '"address":"[^"]*"' | tail -1 | cut -d'"' -f4 || true)"
+if printf '%s\n' "$OUT" | grep -q 'payout.ready'; then
+  printf '  payouts    ready, paid to %s\n' "$PAY_ADDR"
+elif printf '%s\n' "$OUT" | grep -q 'payout.fund_this_wallet'; then
+  NEED="$(printf '%s\n' "$OUT" | grep 'payout.fund_this_wallet' | tail -1 | grep -o '"needLamports":"[0-9]*"' | grep -o '[0-9]*' || true)"
+  SOL="$(awk -v n="${NEED:-3000000}" 'BEGIN { printf "%.4f", n / 1000000000 }')"
+  printf '\n  payouts    send %s SOL to %s once. It pays for the one time\n' "$SOL" "$PAY_ADDR"
+  printf '             Privacy Rings registration of your payout wallet. The node finishes the rest.\n'
+elif [ "$HAVE_KEY" != 1 ] && [ -n "$PAY_ADDR" ]; then
+  printf '\n  payouts    your earnings are kept for you. To have them paid out, get a free key at\n'
+  printf '             helius.dev and run the installer again with HELIUS_API_KEY=<key> before bash.\n'
+fi
 if [ "$WANT_EXIT" = "1" ]; then
   printf '\nThis node is a last hop: it opens connections to the open web for users of the network.\n'
   printf 'To run without that, run the installer again with TANGENT_EXIT=0 before bash.\n'

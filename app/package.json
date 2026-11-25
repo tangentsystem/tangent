@@ -1,0 +1,83 @@
+{
+  "name": "tangent-app",
+  "productName": "Tangent",
+  "version": "0.1.0",
+  "description": "Tangent Systems desktop app",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.mjs",
+  "author": "Tangent Systems",
+  "homepage": "https://tangentsystems.net",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs",
+    "icons": "node scripts/icons.mjs",
+    "start": "node scripts/bundle.mjs && electron .",
+    "test": "node --test --test-concurrency=1 \"test/unit/*.test.js\" \"test/e2e/*.test.js\"",
+    "test:unit": "node --test \"test/unit/*.test.js\"",
+    "test:e2e": "node --test --test-concurrency=1 \"test/e2e/*.test.js\"",
+    "test:ui": "node --test --test-concurrency=1 \"test/ui/*.test.js\"",
+    "test:ui:xvfb": "xvfb-run -a -s \"-screen 0 1280x800x24\" node --test --test-concurrency=1 \"test/ui/*.test.js\"",
+    "build": "node scripts/bundle.mjs && electron-builder --linux AppImage --x64 --publish never",
+    "build:win": "node scripts/bundle.mjs && electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^45.5.0",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2"
+  },
+  "build": {
+    "appId": "net.tangentsystems.app",
+    "productName": "Tangent",
+    "copyright": "Tangent Systems",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "dist/main.mjs",
+      "dist/preload.cjs",
+      "renderer/**",
+      "assets/**",
+      "package.json"
+    ],
+    "asar": true,
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "assets/icon.png",
+      "category": "Network",
+      "artifactName": "Tangent.AppImage",
+      "executableName": "tangent",
+      "syncDesktopName": true
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "Tangent-Setup.exe",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Tangent-Setup.exe",
+      "shortcutName": "Tangent",
+      "uninstallDisplayName": "Tangent"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.utilities"
+    },
+    "publish": []
+  },
+  "desktopName": "tangent.desktop"
+}

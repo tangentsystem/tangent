@@ -1,0 +1,15 @@
+{
+  "name": "tangent-chrome-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Test scripts only. The extension itself loads without this file.",
+  "scripts": {
+    "test": "node --test test/format.test.mjs test/bypass.test.mjs test/view.test.mjs test/controller.test.mjs test/mock-contract.test.mjs",
+    "test:browser": "node --test --test-concurrency=1 test/browser.test.mjs test/browser-controlled.test.mjs",
+    "test:all": "npm test && npm run test:browser",
+    "mock": "node test/mock-app.mjs",
+    "icons": "node test/make-icons.mjs",
+    "pack": "node pack.mjs"
+  }
+}

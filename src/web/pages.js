@@ -121,6 +121,7 @@ export const GUIDES = [
           ['TANGENT_COMPUTE=0', 'Do not rent out sealed computers.'],
           ['TANGENT_GATEWAY=0', 'Do not put off grid payments on chain.'],
           ['TANGENT_HOST=<address>', 'Set your public address yourself.'],
+          ['HELIUS_API_KEY=<key>', 'A free Helius key. With it your node registers its payout wallet with Privacy Rings by itself, so it can be paid.'],
         ]],
         ['p', 'The rest of this guide does the same by hand and explains each part.'],
       ] },
@@ -489,8 +490,95 @@ export const DOCS_INDEX = {
   word: 'DOCS',
   hero: 'Guides for using and running the network.',
   // where the camera sits while each guide's row is read
-  rows: { '/docs/run-a-node': 1, '/docs/payments': 1.3, '/docs/private-internet': 2, '/docs/off-grid': 3, '/docs/agents': 4, '/docs/reference': 5 },
+  rows: { '/docs/app': 2, '/docs/run-a-node': 1, '/docs/payments': 1.3, '/docs/private-internet': 2, '/docs/off-grid': 3, '/docs/agents': 4, '/docs/reference': 5 },
 };
+
+// ---- the app
+//
+// The desktop app and Tangent for Chrome are offered only while their files are really
+// published (see releases.js). `rel` is what can be downloaded right now:
+// { windows, linux, extension } are download addresses or null.
+
+export const APP_PATH = '/app';
+export const APP_GUIDE_PATH = '/docs/app';
+
+export function appPage(rel = {}) {
+  const actions = [];
+  if (rel.windows) actions.push(['Download for Windows', rel.windows, 'btn']);
+  if (rel.linux) actions.push([rel.windows ? 'Linux' : 'Download for Linux', rel.linux, rel.windows ? 'txt' : 'btn']);
+  actions.push(['Setup guide', APP_GUIDE_PATH, 'txt']);
+  return {
+    path: APP_PATH,
+    nav: 'App',
+    title: 'App · Tangent Systems',
+    word: 'APP',
+    hero: 'The private network, on your computer.',
+    seq: [0, 2, 4, 5],
+    say: {
+      2: { ...line('One switch.', 'Three hops between you and the web.'), m: [['One switch.', 0], ['Three hops between', 1], ['you and the web.', 1]] },
+      4: { ...line('Rent a sealed computer.', 'Or hand one to your AI agent.'), m: [['Rent a sealed', 0], ['computer.', 0], ['Or hand one to', 1], ['your AI agent.', 1]] },
+      5: { ...line('Get the app.', 'Be on the network in a minute.'), m: [['Get the app.', 0], ['Be on the network', 1], ['in a minute.', 1]] },
+    },
+    sub: {
+      2: 'Turn it on and your browsing crosses three nodes before it reaches the open web. The app shows you the path it takes.',
+      4: 'Start a locked machine on the network, run commands in it and stop it when you are done.',
+    },
+    lab: { you: 'you' },
+    actions,
+  };
+}
+
+export function appGuide(rel = {}) {
+  const get = [];
+  if (rel.windows) {
+    get.push(['h3', 'Windows', 2]);
+    get.push(['p', `[Download for Windows](${rel.windows}) and open the file. It installs Tangent and starts it.`]);
+    get.push(['p', 'The first time, Windows may ask you to confirm. Choose More info, then Run anyway.']);
+  }
+  if (rel.linux) {
+    get.push(['h3', 'Linux', 2]);
+    get.push(['p', `[Download for Linux](${rel.linux}), allow it to run and start it.`]);
+    get.push(['code', 'chmod +x Tangent.AppImage\n./Tangent.AppImage']);
+  }
+  const sections = [
+    { id: 'get-the-app', h: 'Get the app', k: 2, blocks: get },
+    { id: 'private-internet', h: 'Turn on the private internet', k: 2, blocks: [
+      ['p', 'Open Tangent and turn it on. The app picks three nodes and shows you the path your traffic takes: the first hop, the middle hop and the last hop that reaches the open web.'],
+      ['p', 'Choose Open a private window to browse through it straight away. The window is a fresh browser with its own profile, and everything in it takes the three hops, name lookups included.'],
+      ['p', 'Any other program can use it too: point it at the address the app shows.'],
+    ] },
+    ...(rel.extension ? [{ id: 'chrome', h: 'Tangent for Chrome', k: 2.1, blocks: [
+      ['p', 'The extension switches your own Chrome onto the network with one click, and pauses your browsing instead of exposing it if the private internet ever drops.'],
+      ['list', [
+        `[Download Tangent for Chrome](${rel.extension}) and unzip it.`,
+        'Open `chrome://extensions` and turn on Developer mode.',
+        'Choose Load unpacked and pick the folder you unzipped.',
+        'Click the Tangent icon in the toolbar, choose Connect to the app and approve it in the app.',
+        'Turn it on from the same icon any time.',
+      ]],
+      ['p', 'It works the same in Brave and Edge.'],
+    ] }] : []),
+    { id: 'balance', h: 'Add balance', k: 1.3, blocks: [
+      ['p', 'Open Wallet in the app. It shows your wallet on this computer and where to deposit through Privacy Rings, so what you pay for is not tied to you. See [Payments](/docs/payments) for how that works.'],
+      ['p', 'With balance in your wallet, the app pays each node as you go and tops up by itself.'],
+    ] },
+    { id: 'computers', h: 'Rent a sealed computer', k: 4, blocks: [
+      ['p', 'Open Computers, pick what the machine should run and start it. You get a terminal inside a locked machine on the network. Stop it when you are done and the app shows the bill.'],
+      ['p', 'To hand a machine to your AI agent, choose Connect your AI agent and paste what the app shows into your agent\'s tool list. See [Agents](/docs/agents) for everything an agent can do with it.'],
+    ] },
+  ];
+  return {
+    path: APP_GUIDE_PATH,
+    nav: 'App',
+    blurb: 'The whole network in one window.',
+    title: 'App · Tangent Systems',
+    h1: 'App',
+    lede: 'One window for the private internet, your wallet and sealed computers.',
+    k: 2,
+    lab: { you: 'you' },
+    sections,
+  };
+}
 
 // Every command line shown anywhere on the site, for tests.
 export function shownCode() {

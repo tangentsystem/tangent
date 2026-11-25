@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tangent settings</title>
+<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+<header class="bar">
+  <span class="brand"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="16" r="7"/><path d="M3 9h21"/></svg>Tangent</span>
+</header>
+
+<main class="wrap" id="page">
+  <h1>Settings</h1>
+
+  <section class="block">
+    <h2>Sites that skip Tangent</h2>
+    <p class="note">These open on the open internet, everything else goes through your three nodes. One site per line, like example.com or *.example.com. A site name covers its subdomains too.</p>
+    <textarea id="bypass" spellcheck="false" autocapitalize="off" autocomplete="off" rows="7" aria-label="Sites that skip Tangent"></textarea>
+    <ul class="errors" id="errors" hidden></ul>
+    <div class="row">
+      <button class="main small" id="save" type="button">Save sites</button>
+      <span class="saved" id="saved" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>When you turn Tangent off here</h2>
+    <label class="check">
+      <input type="checkbox" id="stopapp">
+      <span class="box" aria-hidden="true"></span>
+      <span><b>Also turn off the private internet in the app</b><small>Leave this off to keep the app running for your other browsers and apps. Turning off here then only unhooks this browser.</small></span>
+    </label>
+  </section>
+
+  <section class="block">
+    <h2>Pairing</h2>
+    <p class="note" id="pairtext"></p>
+    <div class="row">
+      <button class="main small light" id="forget" type="button">Forget this pairing</button>
+    </div>
+  </section>
+
+  <p class="tech">Tangent for Chrome <span id="ver"></span> · app at 127.0.0.1:47611</p>
+</main>
+<script type="module" src="options.js"></script>
+</body>
+</html>

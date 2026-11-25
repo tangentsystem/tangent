@@ -168,6 +168,7 @@ export function loadConfig(env = process.env) {
     payDevSim: bool(env, 'PAY_DEV_SIM', false),
     // The site's own .onion address (src/coord/site-onion.js). On whenever the service runs on MongoDB.
     siteOnion: bool(env, 'SITE_ONION', true),
+    siteReleases: bool(env, 'SITE_RELEASES', true),
     torBin: env.TOR_BIN || 'tor',
     // Development only, with PAY_DEV_SIM: also open the deposit and withdraw routes on the simulated
     // adapter (they answer 503 there otherwise), so the end to end test can withdraw through the CLI.

@@ -1,0 +1,94 @@
+name: Release
+
+# A pushed tag v* builds the desktop app for Windows and Linux, packs the Chrome extension,
+# and makes one GitHub Release with exactly three files:
+#   Tangent-Setup.exe, Tangent.AppImage, tangent-chrome-extension.zip
+# The release starts as a draft: try the files, then press Publish on the release page.
+# The site offers the downloads by itself once the release is published.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+      - name: Install (repo)
+        run: npm ci --omit=dev
+      - name: Install (app)
+        working-directory: app
+        run: npm ci
+      - name: Build Tangent-Setup.exe
+        working-directory: app
+        shell: bash
+        # on Windows the exe can carry its icon and version info, so resource editing is turned on here
+        run: npm run bundle && npx electron-builder --win nsis --x64 --publish never --config.win.signAndEditExecutable=true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: app/release/Tangent-Setup.exe
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+      - name: Install (repo)
+        run: npm ci --omit=dev
+      - name: Install (app)
+        working-directory: app
+        run: npm ci
+      - name: Build Tangent.AppImage
+        working-directory: app
+        run: npm run build
+      - name: Pack the Chrome extension
+        working-directory: extension
+        run: node pack.mjs
+      - name: Collect the files
+        run: |
+          mkdir -p upload
+          cp app/release/Tangent.AppImage extension/tangent-chrome-extension.zip upload/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: upload/*
+          if-no-files-found: error
+
+  release:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Make the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la out
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Tangent $GITHUB_REF_NAME" \
+            --draft \
+            --notes "Tangent desktop app for Windows and Linux, and Tangent for Chrome. Setup guide: https://tangentsystems.net/docs/app" \
+            out/Tangent-Setup.exe out/Tangent.AppImage out/tangent-chrome-extension.zip

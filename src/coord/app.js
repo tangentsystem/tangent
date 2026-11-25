@@ -99,7 +99,7 @@ async function creditSplit(pay, args) {
 
 export function createApp({
   store, pay = null, token = null, config, connection = null, log = null, keys,
-  offgrid = null, stake = null, now = Date.now, provisioner = null, selftest = null, onion = null,
+  offgrid = null, stake = null, now = Date.now, provisioner = null, selftest = null, onion = null, releases = null,
 } = {}) {
   if (!store) throw new Error('createApp: store is required');
   if (!config) throw new Error('createApp: config is required');
@@ -353,7 +353,7 @@ export function createApp({
   app.use('/api/pay', payGate, pay && pay.router ? pay.router : notConfigured);
   app.use('/api/token', token && token.router ? token.router : notConfigured);
 
-  app.use(createWeb({ token, onion: siteOnion }));
+  app.use(createWeb({ token, onion: siteOnion, releases }));
 
   app.use((_req, res) => res.status(404).json({ error: 'NOT_FOUND', message: 'no such route' }));
 

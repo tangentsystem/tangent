@@ -90,14 +90,14 @@ export function fakeConnection() {
   };
 }
 
-export async function startApp({ env = {}, overrides = {}, pay = null, token = null, connection = null, offgrid = null, stake = null } = {}) {
+export async function startApp({ env = {}, overrides = {}, pay = null, token = null, connection = null, offgrid = null, stake = null, releases = null } = {}) {
   const clock = { t: T0 };
   const now = () => clock.t;
   const store = await createMemoryStore();
   const keys = await ensureKeys({ store });
   const config = { ...loadConfig(env), ...overrides };
   const log = createMemoryLogger(config);
-  const app = createApp({ store, pay, token, config, connection, log, keys, offgrid, stake, now });
+  const app = createApp({ store, pay, token, config, connection, log, keys, offgrid, stake, now, releases });
   const server = http.createServer(app);
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}`;

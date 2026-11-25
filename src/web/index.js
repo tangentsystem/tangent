@@ -11,7 +11,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PAGES, GUIDES, DOCS_INDEX, X_URL, REPO_URL, SITE_URL } from './pages.js';
+import { PAGES, GUIDES, DOCS_INDEX, X_URL, REPO_URL, SITE_URL, APP_PATH, APP_GUIDE_PATH, appPage, appGuide } from './pages.js';
 
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'web');
 
@@ -70,11 +70,15 @@ function head(title, description, pagePath) {
 </head>`;
 }
 
-function nav(current) {
-  const top = PAGES.filter((p) => p.nav).map((p) => [p.nav, p.path]).concat([[DOCS_INDEX.nav, DOCS_INDEX.path]]);
+// x: what the site can offer right now. x.app is true while the desktop app can be downloaded
+// (then the App page and its guide exist); x.guides is the list of guides to show.
+const NO_X = Object.freeze({ app: false, guides: GUIDES });
+
+function nav(current, x = NO_X) {
+  const top = (x.app ? [['App', APP_PATH]] : []).concat(PAGES.filter((p) => p.nav).map((p) => [p.nav, p.path])).concat([[DOCS_INDEX.nav, DOCS_INDEX.path]]);
   const isCur = (href) => current === href || (href === '/docs' && current.startsWith('/docs'));
   const links = top.map(([label, href]) => `<a class="plain${isCur(href) ? ' cur' : ''}" href="${href}">${esc(label)}</a>`).join('');
-  const sheet = [['Home', '/'], ...top.filter(([, h]) => h !== '/docs'), ['Docs', '/docs'], ...GUIDES.map((g) => [g.nav === 'Agents' ? 'Agents guide' : g.nav, g.path])]
+  const sheet = [['Home', '/'], ...top.filter(([, h]) => h !== '/docs'), ['Docs', '/docs'], ...x.guides.map((g) => [g.nav === 'Agents' ? 'Agents guide' : g.nav === 'App' ? 'App guide' : g.nav, g.path])]
     .map(([label, href]) => `<a class="${href.startsWith('/docs/') ? 'sub' : ''}${current === href ? ' cur' : ''}" href="${href}">${esc(label)}</a>`).join('');
   return `<nav>
   <a class="brand" href="/">${ICON}Tangent Systems</a>
@@ -85,15 +89,15 @@ function nav(current) {
 
 const pageJson = (data) => `<script type="application/json" id="page">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 
-function renderJourney(page, tok) {
+function renderJourney(page, tok, x = NO_X) {
   const data = { mode: 'journey', word: page.word, seq: page.seq, say: page.say, sub: page.sub || {}, cmd: page.cmd || {}, lab: page.lab || {} };
-  const actions = (page.actions || []).map(([label, href, cls]) => `<a class="${cls}" href="${esc(href)}">${esc(label)}</a>`).join('');
+  const actions = (page.actions || []).map(([label, href, cls]) => `<a class="${cls}" href="${esc(href)}"${/^https?:/.test(href) ? ' rel="noopener"' : ''}>${esc(label)}</a>`).join('');
   const segs = page.seq.map(() => '<i></i>').join('');
   return `${head(page.title, page.hero, page.path)}
 <body class="journey">
 <canvas id="gl"></canvas>
 <div class="fade"></div>
-${nav(page.path)}
+${nav(page.path, x)}
 <div class="hero" id="hero">${esc(page.hero)}<small>Scroll<i></i></small></div>
 <pre id="cmd"></pre>
 <div id="sub"></div>
@@ -119,16 +123,16 @@ function block(b) {
   throw new Error(`unknown block ${kind}`);
 }
 
-function rail(current) {
-  const items = [['Overview', '/docs'], ...GUIDES.map((g) => [g.nav, g.path])]
+function rail(current, x = NO_X) {
+  const items = [['Overview', '/docs'], ...x.guides.map((g) => [g.nav, g.path])]
     .map(([label, href]) => `<a${href === current ? ' class="cur" aria-current="page"' : ''} href="${href}">${esc(label)}</a>`).join('');
   return `<aside class="rail solid" aria-label="Docs">${items}</aside>`;
 }
 
-function renderGuide(g, tok) {
-  const i = GUIDES.indexOf(g);
-  const prev = i > 0 ? GUIDES[i - 1] : { nav: 'Overview', path: '/docs' };
-  const next = GUIDES[i + 1] || null;
+function renderGuide(g, tok, x = NO_X) {
+  const i = x.guides.findIndex((y) => y.path === g.path);
+  const prev = i > 0 ? x.guides[i - 1] : { nav: 'Overview', path: '/docs' };
+  const next = x.guides[i + 1] || null;
   const toc = g.sections.map((s) => `<a href="#${s.id}">${esc(s.h)}</a>`).join('');
   const sections = g.sections.map((s) => `<section id="${s.id}" data-k="${s.k}">
 <h2>${esc(s.h)}</h2>
@@ -141,9 +145,9 @@ ${s.blocks.map(block).join('\n')}
 <body class="reading">
 <canvas id="gl"></canvas>
 <div class="scrim"></div>
-${nav(g.path)}
+${nav(g.path, x)}
 <div class="read">
-${rail(g.path)}
+${rail(g.path, x)}
 <div class="col">
 <header class="dh" data-k="${g.k}"><div class="solid">
 <a class="up" href="/docs">Docs</a>
@@ -166,15 +170,15 @@ ${pageJson(data)}
 `;
 }
 
-function renderDocsIndex(tok) {
+function renderDocsIndex(tok, x = NO_X) {
   const d = DOCS_INDEX;
-  const rows = GUIDES.map((g) => `<a class="row" href="${g.path}" data-k="${d.rows[g.path]}"><span class="t">${esc(g.nav)}</span><span class="b">${esc(g.blurb)}</span><span class="go" aria-hidden="true">→</span></a>`).join('\n');
+  const rows = x.guides.map((g) => `<a class="row" href="${g.path}" data-k="${d.rows[g.path]}"><span class="t">${esc(g.nav)}</span><span class="b">${esc(g.blurb)}</span><span class="go" aria-hidden="true">→</span></a>`).join('\n');
   const data = { mode: 'read', index: true, word: d.word, lab: {} };
   return `${head(d.title, d.hero, d.path)}
 <body class="reading index">
 <canvas id="gl"></canvas>
 <div class="scrim"></div>
-${nav(d.path)}
+${nav(d.path, x)}
 <div class="ihero" data-k="0" data-s="0"><h1>${esc(d.hero)}</h1><small>Scroll<i></i></small></div>
 <div class="read">
 <div class="col">
@@ -192,7 +196,7 @@ ${pageJson(data)}
 `;
 }
 
-export function createWeb({ token = null, onion = null } = {}) {
+export function createWeb({ token = null, onion = null, releases = null } = {}) {
   const router = express.Router();
   const file = (name, type) => (_req, res) => { res.type(type); res.sendFile(path.join(WEB_DIR, name)); };
   router.get('/tangent.js', file('tangent.js', 'text/javascript'));
@@ -206,8 +210,23 @@ export function createWeb({ token = null, onion = null } = {}) {
   const withOnion = (page, addr) => page
     .replace(`<a class="plain" href="${REPO_URL}" rel="noopener">GitHub</a>`, `<a class="plain" href="http://${addr}" rel="noopener">Onion</a><a class="plain" href="${REPO_URL}" rel="noopener">GitHub</a>`)
     .replace(`<a href="${REPO_URL}" rel="noopener">GitHub</a>`, `<a href="http://${addr}" rel="noopener">Onion</a><a href="${REPO_URL}" rel="noopener">GitHub</a>`);
-  const html = (fn) => async (req, res) => {
-    let page = fn(await tokenBlock(token));
+  // What can be downloaded right now (releases.js). The App page, its guide and the App link
+  // exist only while a desktop build is really published.
+  const SAFE_URL = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/releases\/latest\/download\/[A-Za-z0-9_.-]+$/;
+  const offer = () => {
+    try {
+      const r = releases && typeof releases.current === 'function' ? releases.current() : null;
+      if (!r) return null;
+      const pick = (u) => (typeof u === 'string' && SAFE_URL.test(u) ? u : null);
+      const rel = { windows: pick(r.windows), linux: pick(r.linux), extension: pick(r.extension) };
+      return rel.windows || rel.linux ? rel : null;
+    } catch { return null; }
+  };
+  const ctx = (rel) => (rel ? { app: true, guides: [appGuide(rel), ...GUIDES], rel } : NO_X);
+  const html = (fn, { needsApp = false } = {}) => async (req, res, next) => {
+    const x = ctx(offer());
+    if (needsApp && !x.app) return next();
+    let page = fn(await tokenBlock(token), x);
     const addr = onionOf();
     if (addr) {
       page = withOnion(page, addr);
@@ -216,13 +235,21 @@ export function createWeb({ token = null, onion = null } = {}) {
     res.type('html').send(page);
   };
   const routes = [
-    ...PAGES.map((p) => [p.path, (tok) => renderJourney(p, tok)]),
-    [DOCS_INDEX.path, (tok) => renderDocsIndex(tok)],
-    ...GUIDES.map((g) => [g.path, (tok) => renderGuide(g, tok)]),
+    ...PAGES.map((p) => [p.path, (tok, x) => renderJourney(p, tok, x)]),
+    [DOCS_INDEX.path, (tok, x) => renderDocsIndex(tok, x)],
+    ...GUIDES.map((g) => [g.path, (tok, x) => renderGuide(g, tok, x)]),
   ];
   for (const [p, fn] of routes) {
     router.get(p, html(fn));
     if (p !== '/') router.get(`${p}.html`, (_req, res) => res.redirect(301, p));
+  }
+  const appRoutes = [
+    [APP_PATH, (tok, x) => renderJourney(appPage(x.rel), tok, x)],
+    [APP_GUIDE_PATH, (tok, x) => renderGuide(appGuide(x.rel), tok, x)],
+  ];
+  for (const [p, fn] of appRoutes) {
+    router.get(p, html(fn, { needsApp: true }));
+    router.get(`${p}.html`, (_req, res, next) => (offer() ? res.redirect(301, p) : next()));
   }
   router.get('/index.html', (_req, res) => res.redirect(301, '/'));
   router.get('/docs/index.html', (_req, res) => res.redirect(301, '/docs'));

@@ -137,4 +137,5 @@ code.nw{white-space:nowrap}
   #sub{font-size:14px;bottom:52px}
   #cmd{font-size:11.5px;white-space:pre-wrap;overflow-wrap:anywhere;width:90vw;padding:9px 12px}
   .journey .tok{right:auto;left:20px;top:64px;bottom:auto}
+  .act{flex-wrap:wrap;justify-content:center;gap:14px 22px;width:calc(100vw - 40px)}
 }

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Tangent</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-view="internet">
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="shade" aria-hidden="true"></div>
+
+<header class="bar">
+  <div class="brand"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="16" r="7"/><path d="M3 9h21"/></svg>Tangent</div>
+  <nav class="views">
+    <button data-go="internet" class="cur">Internet</button>
+    <button data-go="computers">Computers</button>
+    <button data-go="wallet">Wallet</button>
+    <button data-go="network">Network</button>
+  </nav>
+</header>
+
+<main>
+  <!-- Internet -->
+  <section class="view" id="v-internet">
+    <div class="col">
+      <h1 id="in-title">Private internet</h1>
+      <p class="lede" id="in-lede">Every page you open crosses three nodes. None of them sees both who you are and where you go.</p>
+      <div class="acts">
+        <button class="btn big tog" id="in-toggle">Turn on</button>
+        <button class="btn big" id="in-window" hidden>Open a private window</button>
+      </div>
+      <p class="note warn" id="in-balance" hidden><span>Add balance to keep browsing.</span><button class="link" data-go="wallet">Add balance</button></p>
+      <p class="note warn" id="in-limit" hidden>Today's automatic top up limit is reached.</p>
+      <p class="note" id="in-error" hidden></p>
+      <dl class="facts" id="in-facts" hidden>
+        <div id="in-f-time"><dt>Connected</dt><dd id="in-time"></dd></div>
+        <div id="in-f-data" hidden><dt>Data used</dt><dd id="in-data"></dd></div>
+      </dl>
+      <ol class="path" id="in-path" hidden></ol>
+      <p class="tech" id="in-tech" hidden></p>
+      <p class="tech" id="in-browser" hidden></p>
+    </div>
+    <button class="link apps" id="in-apps" hidden>Connected apps</button>
+  </section>
+
+  <!-- Computers -->
+  <section class="view" id="v-computers">
+    <div class="cols">
+      <div class="col">
+        <h1>Computers</h1>
+        <p class="lede">Sealed computers by the second, for you or your AI agent.</p>
+
+        <div id="pc-pick" class="step">
+          <p class="hint" id="pc-none" hidden>No node is renting computers right now.</p>
+          <div id="pc-form" hidden>
+            <div class="field"><span class="lbl">Image</span><div class="choices" id="pc-images"></div></div>
+            <div class="field"><span class="lbl">Size</span><div class="choices" id="pc-sizes"></div></div>
+            <div class="field" id="pc-node-field" hidden><span class="lbl">Node</span><div class="choices" id="pc-nodes"></div></div>
+            <div class="acts"><button class="btn" id="pc-next">Continue</button></div>
+          </div>
+        </div>
+
+        <div id="pc-confirm" class="step" hidden>
+          <p class="summary" id="pc-summary"></p>
+          <dl class="facts"><div><dt>Price</dt><dd id="pc-price"></dd></div><div><dt>Per hour</dt><dd id="pc-hour"></dd></div></dl>
+          <p class="note warn" id="pc-need" hidden><span>Add balance to rent a computer.</span><button class="link" data-go="wallet">Add balance</button></p>
+          <p class="note" id="pc-err" hidden></p>
+          <div class="acts"><button class="btn" id="pc-rent">Rent</button><button class="link" id="pc-back">Back</button></div>
+        </div>
+
+        <div id="pc-run" class="step" hidden>
+          <div class="runhead"><p class="summary" id="pc-running"></p><button class="btn line small" id="pc-stop">Stop</button></div>
+          <div class="term" id="pc-term"><div class="out" id="pc-out"></div><form class="in" id="pc-form-cmd"><span>$</span><input id="pc-cmd" autocomplete="off" spellcheck="false" aria-label="Command"></form></div>
+        </div>
+
+        <div id="pc-bill" class="step" hidden>
+          <p class="summary" id="pc-billtitle">Your computer has stopped.</p>
+          <dl class="facts"><div id="pc-b-time"><dt>Ran for</dt><dd id="pc-btime"></dd></div><div id="pc-b-owed"><dt>Bill</dt><dd id="pc-bowed"></dd></div></dl>
+          <div class="acts"><button class="btn line" id="pc-again">Rent another</button></div>
+        </div>
+      </div>
+
+      <div class="col side">
+        <h2>Connect your AI agent</h2>
+        <p class="lede small">Your agent rents and drives computers by itself, paid from this wallet.</p>
+        <div class="acts" id="ag-off"><button class="btn line" id="ag-start">Connect</button></div>
+        <p class="note" id="ag-err" hidden></p>
+        <div id="ag-on" hidden>
+          <p class="hint">Paste this into your agent's MCP settings.</p>
+          <div class="code"><pre id="ag-snippet"></pre><button class="copy" id="ag-copy">Copy</button></div>
+          <button class="link" id="ag-stop">Disconnect</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wallet -->
+  <section class="view" id="v-wallet">
+    <div class="cols">
+      <div class="col">
+        <h1>Wallet</h1>
+        <p class="addr"><a class="mono" id="wa-addr" href="#"></a><button class="mini" id="wa-copy">Copy</button></p>
+        <p class="lede" id="wa-empty" hidden>Add balance to pay for the private internet and computers as you use them.</p>
+        <div class="bal" id="wa-bal" hidden><span id="wa-sol"></span><small>SOL</small></div>
+        <p class="hint" id="wa-credit" hidden></p>
+        <div class="acts"><button class="btn" id="wa-add">Add balance</button><button class="btn line" id="wa-out" hidden>Withdraw</button></div>
+        <ul class="list" id="wa-history" hidden></ul>
+      </div>
+      <div class="col side">
+        <div id="wa-dep" hidden>
+          <h2>Add balance</h2>
+          <p class="lede small">Send SOL through Privacy Rings. It is credited to this wallet only.</p>
+          <div class="kv"><span class="lbl">Send to</span><div class="code"><pre id="wa-vault"></pre><button class="copy" data-copy="wa-vault">Copy</button></div></div>
+          <div class="kv" id="wa-memo-row"><span class="lbl">With this note</span><div class="code"><pre id="wa-memo"></pre><button class="copy" data-copy="wa-memo">Copy</button></div></div>
+          <p class="hint">Your balance shows here once it arrives.</p>
+        </div>
+        <p class="note" id="wa-dep-closed" hidden>Deposits are paused on this network.</p>
+        <form id="wa-wd" hidden autocomplete="off">
+          <h2>Withdraw</h2>
+          <label class="kv"><span class="lbl">To</span><input id="wd-to" class="mono" spellcheck="false" placeholder="Solana address"></label>
+          <label class="kv"><span class="lbl">Amount</span><span class="amt"><input id="wd-amt" inputmode="decimal" spellcheck="false"><i>SOL</i></span></label>
+          <div class="kv"><span class="lbl">Address type</span><div class="choices" id="wd-kind">
+            <button type="button" data-kind="rings" class="on">Privacy Rings wallet</button>
+            <button type="button" data-kind="public">Public address</button>
+          </div></div>
+          <p class="note" id="wd-err" hidden></p>
+          <div class="acts"><button class="btn" id="wd-go" type="submit">Withdraw</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Network -->
+  <section class="view" id="v-network">
+    <div class="col right">
+      <h1>Network</h1>
+      <p class="lede" id="nw-count"></p>
+      <ul class="nodes" id="nw-list"></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="ver" id="ver"></p>
+  <div class="tok" id="tok" hidden><span class="sym" id="tok-sym"></span><a class="ca" id="tok-ca" href="#"></a><button id="tok-copy">Copy</button><a class="buy" id="tok-buy" href="#" hidden></a></div>
+</footer>
+
+<div class="veil" id="pair" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pair-title">
+    <h2 id="pair-title"></h2>
+    <p class="lede small">It can turn the private internet on and off and see its path.</p>
+    <div class="acts"><button class="btn" id="pair-allow">Allow</button><button class="btn line" id="pair-deny">Deny</button></div>
+  </div>
+</div>
+
+<div class="veil" id="apps" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apps-title">
+    <h2 id="apps-title">Connected apps</h2>
+    <ul class="list" id="apps-list"></ul>
+    <div class="acts"><button class="btn line" id="apps-close">Done</button></div>
+  </div>
+</div>
+
+<p class="toast" id="toast" hidden></p>
+<script src="scene.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

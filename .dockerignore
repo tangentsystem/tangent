@@ -11,3 +11,6 @@ docs
 *.log
 data
 backups
+app
+extension
+.github

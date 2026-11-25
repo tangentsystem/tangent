@@ -22,6 +22,12 @@ One line on an Ubuntu or Debian machine installs everything, starts the node and
 curl -fsSL https://tangentsystems.net/install.sh | sudo bash
 ```
 
+To be paid out, add a free [Helius](https://www.helius.dev) key in the same line. The node then registers its payout wallet with Privacy Rings by itself:
+
+```
+curl -fsSL https://tangentsystems.net/install.sh | sudo HELIUS_API_KEY=<your key> bash
+```
+
 Or by hand:
 
 ```
@@ -37,6 +43,25 @@ node bin/node.js --coordinator https://tangentsystems.net --host <your public ad
 - The last line starts the node. When the log shows `node.ready`, you are part of the network.
 
 Full guide: [Run a node](https://tangentsystems.net/docs/run-a-node)
+
+## Get the app
+
+Tangent for Windows and Linux puts the whole network in one window: turn the private internet on and see the three hops your traffic takes, open a private browser window, keep your wallet, rent a sealed computer, and connect your AI agent.
+
+Tangent for Chrome switches your own browser onto the network with one click, and pauses your browsing instead of exposing it if the private internet ever drops.
+
+Downloads: [Releases](https://github.com/tangentsystem/tangent/releases/latest) · Setup guide: [App](https://tangentsystems.net/docs/app)
+
+Both are built from this repo by the workflow in `.github/workflows/release.yml`. To run them from source:
+
+```
+npm install
+cd app
+npm install
+npm start
+```
+
+For the extension, open `chrome://extensions`, turn on Developer mode, choose Load unpacked and pick the `extension` folder.
 
 ## Use the network
 
@@ -86,12 +111,16 @@ Guide: [Sealed computers](https://tangentsystems.net/docs/agents)
 | `src/node` | The node itself: keys, credit, earnings, payouts |
 | `src/coord` | The network service that nodes and clients talk to |
 | `bin` | The three commands: `node.js`, `client.js`, `mcp.js` |
+| `app` | The desktop app (Electron). `app/core` is everything behind the window and runs without it |
+| `extension` | Tangent for Chrome |
 | `web` | The site |
 
 ## Tests
 
 ```
 npm test
+npm run test:app
+npm run test:extension
 ```
 
 The tests that need Docker or a MongoDB run when those are present.
