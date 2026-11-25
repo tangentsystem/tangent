@@ -79,6 +79,8 @@ COMPUTE=0
 if [ "$WANT_COMPUTE" = "1" ]; then
   if ! have docker; then note "installing Docker"; apt_install docker.io || true; fi
   if have docker; then
+    # The browser image is built with BuildKit, which newer Docker packages ship separately.
+    if ! docker buildx version >/dev/null 2>&1 && have apt-get; then apt_install docker-buildx 2>/dev/null || true; fi
     [ "$SYSTEMD" = 1 ] && systemctl enable --now docker >/dev/null 2>&1 || true
     if docker info >/dev/null 2>&1; then COMPUTE=1; note "Docker is running"; else note "Docker does not run here, so this node will not rent out computers"; fi
   else
