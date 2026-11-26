@@ -13,6 +13,7 @@
 #   TANGENT_COMPUTE=0        do not rent out sealed computers (no Docker needed)
 #   TANGENT_GATEWAY=0        do not put off grid payments on chain
 #   TANGENT_RPC_URL=<url>    Solana RPC for the gateway
+#   TANGENT_FREE_MB=<n>      MB a path may carry before your node asks to be paid (default 1)
 #   HELIUS_API_KEY=<key>     a Helius key, so the node registers its payout wallet with Privacy
 #                            Rings by itself and can be paid (kept in a file only root can read)
 set -euo pipefail
@@ -23,6 +24,7 @@ DATA="${TANGENT_DATA:-/var/lib/tangent/node}"
 COORD="${TANGENT_COORDINATOR:-https://tangentsystems.net}"
 RPC="${TANGENT_RPC_URL:-}"
 HELIUS="${HELIUS_API_KEY:-}"
+FREE_MB="${TANGENT_FREE_MB:-}"
 HOST="${TANGENT_HOST:-}"
 WANT_EXIT="${TANGENT_EXIT:-1}"
 WANT_COMPUTE="${TANGENT_COMPUTE:-1}"
@@ -143,6 +145,10 @@ if [ "$WANT_GATEWAY" = "1" ]; then
   if [ -n "$RPC" ]; then ARGS+=(--rpc-url "$RPC"); elif [ "$HAVE_KEY" != 1 ]; then ARGS+=(--rpc-url https://api.mainnet-beta.solana.com); fi
 fi
 [ "$COMPUTE" = 1 ] && ARGS+=(--compute)
+if [ -n "$FREE_MB" ]; then
+  printf '%s' "$FREE_MB" | grep -Eq '^[1-9][0-9]{0,4}$' || die "TANGENT_FREE_MB must be a whole number of MB"
+  ARGS+=(--free-mb "$FREE_MB")
+fi
 # shellcheck disable=SC2206
 [ -n "$EXTRA" ] && ARGS+=($EXTRA)
 NODE_BIN="$(command -v node)"

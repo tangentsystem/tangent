@@ -6,7 +6,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { createNode, createNodeLogger } from '../src/node/daemon.js';
+import { createNode, createNodeLogger, NODE_DEFAULTS } from '../src/node/daemon.js';
 
 const HELP = `Tangent Systems node
 
@@ -33,6 +33,7 @@ Usage: node bin/node.js [setup] --coordinator <url> --host <public address> [opt
   --payout <address>        your own registered Privacy Rings wallet for payouts (default: a payout key of this node)
   --region <name>           coarse region shown on the map, for example eu-west
   --price-mb <lamports>     price per MB relayed (default 10000)
+  --free-mb <n>             MB a path may carry before this node asks to be paid (default 1)
   --price-tx <lamports>     price per off grid transaction (default 0, tips pay carriers)
   --price-second <lamports> price per second of a small machine (default 1000)
   --tor-control <host:port> publish the relay as a Tor onion service (password from TOR_CONTROL_PASSWORD)
@@ -55,7 +56,7 @@ const { values, positionals } = parseArgs({
     // accepted for older scripts; machine wallet key backups are always on now
     'backup-machine-wallets': { type: 'boolean' }, mcp: { type: 'boolean' },
     payout: { type: 'string' }, region: { type: 'string' },
-    'price-mb': { type: 'string' }, 'price-tx': { type: 'string' }, 'price-second': { type: 'string' },
+    'price-mb': { type: 'string' }, 'free-mb': { type: 'string' }, 'price-tx': { type: 'string' }, 'price-second': { type: 'string' },
     'tor-control': { type: 'string' }, 'dev-allow-private': { type: 'boolean' },
   },
 });
@@ -112,6 +113,11 @@ const opts = {
 for (const [k, flag] of [['perMbLamports', 'price-mb'], ['perTxLamports', 'price-tx'], ['perSecondLamports', 'price-second']]) {
   const v = lamports(values[flag], flag);
   if (v !== undefined) opts[k] = v;
+}
+if (values['free-mb'] !== undefined) {
+  if (!/^[0-9]{1,5}$/.test(values['free-mb']) || Number(values['free-mb']) < 1) fail('--free-mb must be a whole number of MB, 1 or more');
+  // what a path may run up before this node stops carrying it: that many MB at this node's price
+  opts.creditLimitLamports = (opts.perMbLamports ?? NODE_DEFAULTS.perMbLamports) * BigInt(values['free-mb']);
 }
 for (const k of Object.keys(opts)) if (opts[k] === undefined) delete opts[k];
 
